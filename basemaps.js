@@ -30,9 +30,12 @@ export function getNextBasemap(basemap) {
 
 // add the base path of the current page to the URL
 function addBasePath(url) {
-  let base = window.location.origin + window.location.pathname;
-  if (base.slice(-1) !== '/') {
-    base += '/';
+  let base =
+    window.location.origin + window.location.origin.indexOf("localhost") === -1
+      ? window.location.pathname
+      : "";
+  if (base.slice(-1) !== "/") {
+    base += "/";
   }
   return base + url;
 }
