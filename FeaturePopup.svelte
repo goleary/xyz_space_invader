@@ -29,6 +29,13 @@
     </tr>
   {/each}
 
+  {#if geoName!== null}
+    <tr>
+      <td>Location</td>
+      <td>{geoName}</td>
+    </tr>
+  {/if}
+
   {#if extendedProps.length && summaryProps.length}
     <tr><td colspan="2"><hr></td></tr>
   {/if}
@@ -65,15 +72,39 @@ export default {
       if (feature == null) {
         return [];
       }
+      function addCommas(nStr){
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+          x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+      }
+      const formatDollar = (amount)=>`$${addCommas(amount.toFixed(2))}`;
 
       const addFeatureProp = (['id', 'name'].indexOf(featureProp) === -1);
-
-      return [
+      let propValue = lookupProperty(feature.properties, featurePropStack);
+      if(featureProp.indexOf('cost')!== -1 
+      || featureProp.indexOf('wage')!== -1
+      || featureProp.indexOf('earn')!== -1){
+        propValue = formatDollar(propValue);
+      }
+      const props = [
           ['id', feature.properties.id, ['id']],
           ['name', feature.properties.name, ['name']],
-          addFeatureProp ? [featureProp, lookupProperty(feature.properties, featurePropStack) || 'null', featurePropStack] : []
+          addFeatureProp ? [featureProp, propValue || 'null', featurePropStack] : []
         ]
         .filter(x => x[0] && x[1]); // only include props that had values
+        return props;
+    },
+    geoName : ({feature})=>{
+      if (feature && feature.properties && feature.properties.geography) {
+        return feature.properties.geography;
+      }
+      return null;
     },
 
     extendedProps: ({ feature, featureProp, featurePinned }) => {
