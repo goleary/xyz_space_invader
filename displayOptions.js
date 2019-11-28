@@ -56,6 +56,10 @@ export const displayOptions = {
         _.set(scene, 'global.lookupFeatureProp',
           `function(feature) {
             try {
+              if(feature.count){
+                // handles hexbins
+                return feature.sum.sum;
+              }
               return feature${featurePropStack.map(k => '[\'' + k + '\']').join('')};
             }
             catch(e) { return null; } // catches cases where some features lack nested property, or other errors
