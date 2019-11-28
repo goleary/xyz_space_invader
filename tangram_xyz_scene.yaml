@@ -9,6 +9,13 @@ global:
         color: [0,0,0,0.25]
         width: 2px
 
+    access_token: 
+      AKC07NDqR_esMFLrVrox2AA
+    hexbin_space_url:
+      https://xyz.api.here.com/hub/spaces/1EEn6mn3/tile/web/{z}_{x}_{y}
+    zip_space_url:
+      https://xyz.api.here.com/hub/spaces/FuxKzzD9/tile/web/{z}_{x}_{y}
+
     # replaced by app JS, used to look-up feature props that may be nested
     lookupFeatureProp: function(feature) { return null; }
     lookupFeatureLabelProp: function(feature) { return null; }
@@ -100,6 +107,60 @@ global:
         return size;
       }
 
+sources:
+    _z2_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        # max_zoom: 13
+        url_params: 
+            access_token: global.access_token
+            tags: zoom2_hexbin
+            clip: true            
+    _z3_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        min_zoom: 1
+        max_zoom: 3
+        url_params: 
+            access_token: global.access_token
+            tags: zoom3_hexbin
+            clip: true 
+    _z4_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        min_zoom: 4
+        max_zoom: 4
+        url_params: 
+            access_token: global.access_token
+            tags: zoom4_hexbin
+            clip: true 
+    _z5_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        min_zoom: 5
+        max_zoom: 5
+        url_params: 
+            access_token: global.access_token
+            tags: zoom5_hexbin
+            clip: true 
+    _z6_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        min_zoom: 6
+        max_zoom: 6
+        url_params: 
+            access_token: global.access_token
+            tags: zoom6_hexbin
+            clip: true 
+    _z7_hexbin:
+        url: global.hexbin_space_url
+        type: GeoJSON
+        min_zoom: 7
+        max_zoom: 7
+        url_params: 
+            access_token: global.access_token
+            tags: zoom7_hexbin
+            clip: true  
 # sources:
 #     _xyzspace: # this source is created at run-time based on XYZ space
 

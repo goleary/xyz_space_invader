@@ -244,6 +244,7 @@ function applySpace({ spaceId, token, hexbinInfo, displayToggles: { hexbins } = 
     scene_config.sources._xyzspace = {
       type: 'GeoJSON',
       url: `https://xyz.api.here.com/hub/spaces/${activeSpaceId}/tile/web/{z}_{x}_{y}`,
+      min_display_zoom: 8,
       url_params: {
         access_token: token,
         clip: true
@@ -456,7 +457,7 @@ async function getStats({ spaceId, token, mapStartLocation }) {
 
 // query Tangram viewport tiles, and update UI data (tag and property counts, etc.)
 async function queryViewport() {
-  const features = await scene.queryFeatures({ filter: { $source: '_xyzspace' }});
+  const features = await scene.queryFeatures({ filter: { $source: scene.config.layers._xyz_polygons.data.source }});
   console.log("features in viewport:", features.length);
   appUI.set({ featuresInViewport: features });
   updateViewportProperties(features);
@@ -481,3 +482,39 @@ function updateViewportProperties(features) { // for feature prop
     featurePropSigmaCeiling: stats.sigmaCeiling
   });
 }
+
+// additions by Gabe O
+map.on("zoomend", function() {
+  if (!scene || !scene.config) {
+    return;
+  }
+  const zoomLevel = Math.floor(map.getZoom());
+  let source, featurePropStack;
+  switch (zoomLevel) {
+    case 0:
+    case 1:
+    case 2:
+      zoomLevel = 3;
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 7:
+      source = `_z${zoomLevel}_hexbin`;
+      featurePropStack = ["sum","sum"];
+      break;
+    default:
+      source = "_xyzspace";
+      featurePropStack = ["commute_cost_year"];
+      //reset selected field
+      break;
+  }
+  if(scene.config.layers._xyz_polygons.data.source !== source){
+    scene.config.layers._xyz_polygons.data.source = source;
+    scene.config.layers._xyz_dots.data.source = source;
+    scene.updateConfig();
+    appUI.setFeatureProp({featurePropStack});
+  }
+  console.log("Current Zoom Level:" + zoomLevel);
+});
+
