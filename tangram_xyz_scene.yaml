@@ -108,6 +108,22 @@ global:
       }
 
 sources:
+    _metro:
+        url: "https://xyz.api.here.com/hub/spaces/FuxKzzD9/tile/web/{z}_{x}_{y}"
+        type: GeoJSON
+        min_zoom: 1
+        max_zoom: 5
+        url_params:
+            access_token: global.access_token
+            clip: true
+    _county:
+        url: "https://xyz.api.here.com/hub/spaces/VSJhRZQi/tile/web/{z}_{x}_{y}"
+        type: GeoJSON
+        min_zoom: 5
+        max_zoom: 7
+        url_params:
+            access_token: global.access_token
+            clip: true
     _z2_hexbin:
         url: global.hexbin_space_url
         type: GeoJSON

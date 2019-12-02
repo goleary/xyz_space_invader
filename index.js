@@ -498,14 +498,17 @@ map.on("zoomend", function() {
     case 3:
     case 4:
     case 5:
+        source = '_metro';
+        break;
     case 6:
     case 7:
-      source = `_z${zoomLevel}_hexbin`;
-      featurePropStack = ["sum","sum"];
+      //source = `_z${zoomLevel}_hexbin`;
+      source = '_county';
+      //featurePropStack = ["sum","sum"];
       break;
     default:
       source = "_xyzspace";
-      featurePropStack = ["commute_cost_year"];
+      //featurePropStack = ["commute_cost_year"];
       //reset selected field
       break;
   }
@@ -513,7 +516,7 @@ map.on("zoomend", function() {
     scene.config.layers._xyz_polygons.data.source = source;
     scene.config.layers._xyz_dots.data.source = source;
     scene.updateConfig();
-    appUI.setFeatureProp({featurePropStack});
+    //appUI.setFeatureProp({featurePropStack});
   }
   console.log("Current Zoom Level:" + zoomLevel);
 });
