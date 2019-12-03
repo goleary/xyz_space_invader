@@ -120,18 +120,10 @@ sources:
         url: "https://xyz.api.here.com/hub/spaces/VSJhRZQi/tile/web/{z}_{x}_{y}"
         type: GeoJSON
         min_zoom: 5
-        max_zoom: 7
+        max_zoom: 8
         url_params:
             access_token: global.access_token
-            clip: true
-    _z2_hexbin:
-        url: global.hexbin_space_url
-        type: GeoJSON
-        # max_zoom: 13
-        url_params: 
-            access_token: global.access_token
-            tags: zoom2_hexbin
-            clip: true            
+            clip: true        
     _z3_hexbin:
         url: global.hexbin_space_url
         type: GeoJSON

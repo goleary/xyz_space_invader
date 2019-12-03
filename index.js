@@ -32,7 +32,7 @@ tooltip = L.tooltip();
 popup = L.popup({ autoPan: false, closeButton: true });
 
 // Leaflet needs an initial location before the map is "ready", which will block Tangram layer loading
-map.setView([37.7,-122.4], 2);
+map.setView([37.7,-122.4], 8);
 
 // Initialize App UI
 const appUI = new AppUI({
@@ -149,7 +149,7 @@ function makeLayer(scene_obj) {
           return;
         }
 
-        if (feature && feature.source_name === '_xyzspace') {
+        if (feature) {
           appUI.set({ feature, featurePinned: false });
 
           if (!popup.isOpen()) {
@@ -166,7 +166,7 @@ function makeLayer(scene_obj) {
       click: ({ feature, leaflet_event: { latlng }, changed }) => {
         // select new feature, syncs to app UI
         if (!appUI.get().featurePinned) {
-          if (feature && feature.source_name === '_xyzspace') {
+          if (feature) {
             if (!popup.isOpen()) {
               layer.openPopup(latlng);
             }
@@ -211,8 +211,14 @@ function makeLayer(scene_obj) {
   scene.subscribe({
     load: function ({ config }) {
       // when a new scene loads (e.g. when app loads, or a new basemap is selected),
+      console.log('load')
       // update with current data source and display options
       updateScene(appUI.get(), config);
+    },
+    update: ()=>{
+      console.log('update');
+      queryViewport();
+      
     },
     view_complete: function (e) {
       // when new tiles finish loading, update viewport counts for tags and feature properties
@@ -244,7 +250,7 @@ function applySpace({ spaceId, token, hexbinInfo, displayToggles: { hexbins } = 
     scene_config.sources._xyzspace = {
       type: 'GeoJSON',
       url: `https://xyz.api.here.com/hub/spaces/${activeSpaceId}/tile/web/{z}_{x}_{y}`,
-      min_display_zoom: 8,
+      min_display_zoom: 7,
       url_params: {
         access_token: token,
         clip: true
@@ -454,10 +460,14 @@ async function getStats({ spaceId, token, mapStartLocation }) {
     uniqueTagsSeen: new Set([...appUI.get().uniqueTagsSeen, ...stats.tags.value.map(t => t.key)].filter(x => x))
   });
 }
-
+let awaitingQuery = false;
 // query Tangram viewport tiles, and update UI data (tag and property counts, etc.)
 async function queryViewport() {
-  const features = await scene.queryFeatures({ filter: { $source: scene.config.layers._xyz_polygons.data.source }});
+  if(awaitingQuery)
+    return;
+  awaitingQuery= true;
+  const features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }, visible: true});
+  awaitingQuery=false;
   console.log("features in viewport:", features.length);
   appUI.set({ featuresInViewport: features });
   updateViewportProperties(features);
@@ -488,7 +498,7 @@ map.on("zoomend", function() {
   if (!scene || !scene.config) {
     return;
   }
-  const zoomLevel = Math.floor(map.getZoom());
+  let zoomLevel = Math.floor(map.getZoom());
   let source, featurePropStack;
   switch (zoomLevel) {
     case 0:
@@ -498,8 +508,8 @@ map.on("zoomend", function() {
     case 3:
     case 4:
     case 5:
-        source = '_metro';
-        break;
+      source = '_metro';
+      break;
     case 6:
     case 7:
       //source = `_z${zoomLevel}_hexbin`;
@@ -513,6 +523,7 @@ map.on("zoomend", function() {
       break;
   }
   if(scene.config.layers._xyz_polygons.data.source !== source){
+    console.log('updating layer source to: ', source);
     scene.config.layers._xyz_polygons.data.source = source;
     scene.config.layers._xyz_dots.data.source = source;
     scene.updateConfig();

@@ -6,6 +6,7 @@
 {:else}
   <!-- Render full UI -->
   <div id="controls_left" class="column">
+    {#if !prod}
     <div id="spaces" class="panel">
       <div id="space_info">
         {#if spaceInfo}
@@ -70,9 +71,10 @@
         {/if}
       </div>
     </div>
-
+    {/if}
     <div id="colors" class="panel hideOnMobilePortrait">
       <div id="colorProperties">
+        {#if !prod}
         <!-- Selected feature property and value info -->
         {#if featureProp && featurePropCount != null}
           <div>
@@ -104,7 +106,6 @@
             {/if}
           </div>
         {/if}
-
         <!-- Color mode selector -->
         {#if displayToggles}
           <div>
@@ -118,10 +119,11 @@
             </select>
           </div>
         {/if}
-
+        {/if}
         <!-- Color palette and range filters -->
         {#if featureProp && featurePropCount != null}
           {#if showFeaturePropPalette(displayToggles.colors)}
+          {#if !prod}
             <div class="hideOnMobile">
               Color palette
               <select bind:value="featurePropPaletteName">
@@ -135,7 +137,7 @@
                 Flip
               </label>
             </div>
-
+            {/if}
             {#if featurePropMin != null}
               {#if useFeaturePropRangeLimit(displayToggles.colors)}
                 <div>
@@ -156,14 +158,15 @@
                   <input type="checkbox" bind:checked="featurePropHideOutliers">
                   Hide values outside range
                 </label>
-
                 {#if isPropNumeric(featurePropStack, { featurePropTypesCache, featuresInViewport, featurePropNumericThreshold })}
                 <!-- {#if featurePropMostlyNumeric} -->
                   <FeaturePropHistogram
                     minFilter={featurePropMinFilter}
                     maxFilter={featurePropMaxFilter}
-                    valueCounts={sortedFeaturePropValueCounts}
+                    valueCounts={featurePropValueCounts}
                     valueColorFunction={featurePropValueColorFunction}
+                    propType={getPropType(featureProp)}
+                    propName={propMap[featureProp]}
                   />
                 {/if}
               {/if}
@@ -172,7 +175,7 @@
         {/if}
       </div>
 
-      {#if sortedUniqueFeaturePropsSeen.length > 0}
+      {#if !prod && sortedUniqueFeaturePropsSeen.length > 0}
         <!-- Label property selector -->
         <div style="display: flex; flex-direction: row; align-items: center; margin: 5px 0px;">
           <span style="flex: 0 0 auto; margin-right: 5px;">Label features by</span>
@@ -206,54 +209,55 @@
           </div>
         {/if}
       {/if}
-
-      {#if !(featureProp && featurePropCount != null)}
+      {#if !prod && !(featureProp && featurePropCount != null)}
         Select a feature property to analyze, from the property list or by clicking on an individual feature.
       {/if}
 
-      <!-- Top values list -->
+
+    </div>
       {#if featureProp && featurePropValueCounts}
+
+       <div class="panel" style="flex-grow:1">
+         <!-- Top values list -->
         <div class="hideOnMobile">
           <div style="margin: 5px 0 5px 0;">
-            Top values by
-            <select bind:value="featurePropValueSort">
-              <option>count</option>
-              <option>values</option>
-            </select>
+            Top 10 locations by {propMap[featureProp]}
           </div>
 
           <table id="prop_stats">
-            <thead>
-              <tr><td style="text-align: right;">#</td><td></td><td>Value</td></tr>
-            </thead>
             <tbody>
-              {#each sortedFeaturePropValueCounts.slice(0, 50) as [value, count], i }
+              {#each sortedFeatures.slice(0, 10) as {properties}, i }
                 <tr>
-                  <td style="width: 15px; text-align: right;">{count}</td>
                   <td style="width: 15px;">
                     <!-- uses color calc code shared with tangram-->
                     {#if colorModeUsesProperty(displayToggles.colors)}
-                      <span class="dot" style="background-color: {featurePropValueColorFunction(value)};">
+                      <span class="dot" style="background-color: {featurePropValueColorFunction(properties[featureProp])};">
                       </span>
                     {/if}
                   </td>
                   <td
                     class="value_row"
                     class:active="featurePropValue != null && value == featurePropValue"
-                    on:click="set({featurePropValue: (value != featurePropValue ? value : null)})">
-                    {maybeStringifyObject(value)}
+                    >
+                    {formatProp(featureProp,properties[featureProp])}
+                  </td>
+                  <td
+                    class="value_row"
+                    on:click="set({featurePropValue: (value != featurePropValue ? value : null)})"
+                    >
+                    {formatGeo(properties.geography)}
                   </td>
                 </tr>
               {/each}
             </tbody>
           </table>
 
-          {#if sortedFeaturePropValueCounts.length > 50}
-            <i>{sortedFeaturePropValueCounts.length - 50} more {sortedFeaturePropValueCounts.length - 50 > 1 ? 'values' : 'value'} for {featureProp} not shown</i>
+          {#if sortedFeatures.length > 10}
+            <i>{sortedFeatures.length - 10} more {sortedFeatures.length - 10 > 1 ? 'values' : 'value'} for {featureProp} not shown</i>
           {/if}
         </div>
-      {/if}
-    </div>
+   </div>
+  {/if}
   </div>
 
   <!-- Demo/inspect mode toggle-->
@@ -262,6 +266,7 @@
   {/if}
 
   <div id="controls_right" class="column hideOnMobile">
+  {#if !prod}
     <div id="tag_summary" class="panel">
       <table id="tag_stats">
         {#if featuresInViewport.length}
@@ -343,6 +348,25 @@
         </table>
       {/if}
     </div>
+   {:else}
+       <div id="properties" class="panel hideOnMobile">
+       <h4>Properties</h4>
+      {#if sortedUniqueFeaturePropsSeen.length > 0}
+        <table>
+          {#each sortedUniqueFeaturePropsSeen as [prop, propStack]}
+          {#if propMap[prop]}
+            <tr class:active="prop === featureProp" on:click="setFeatureProp({ featurePropStack: (prop !== featureProp ? propStack : null) })">
+              <td>
+                {@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}
+                {propMap[prop] || prop}
+              </td>
+            </tr>
+            {/if}
+          {/each}
+        </table>
+      {/if}
+    </div>
+   {/if}
   </div>
 {/if}
 
@@ -374,11 +398,16 @@ import { colorPalettes } from './colorPalettes';
 import { colorFunctions, colorHelpers } from './colorFunctions';
 import { displayOptions } from './displayOptions';
 import { calcFeaturePropertyStats } from './stats';
-import { parseNestedObject, formatPropStack, parseNumber, mostlyNumeric, lookupProperty, PROP_TYPES } from './utils';
+import { parseNestedObject, formatPropStack, parseNumber, mostlyNumeric, lookupProperty, PROP_TYPES, getPropType, propMap, formatProp,formatGeo } from './utils';
 
 export default {
   data() {
     return {
+      // use to disable UI elements for production map by Gabe
+      prod: true,
+      propMap,
+      formatProp,
+      formatGeo,
       // set these to empty strings (not null) to get placeholder text in input
       spaceId: '',
       token: '',
@@ -513,26 +542,12 @@ export default {
       ];
     },
 
-    sortedFeaturePropValueCounts: ({ featurePropValueCounts, featurePropValueSort }) => {
-      if (!featurePropValueCounts) {
+    sortedFeatures: ({featuresInViewport, featureProp})=>{
+      if(!featuresInViewport) {
         return [];
       }
-
-      if (featurePropValueSort === 'values') {
-        // copy and re-sort on value (descending) if needed
-        return Array.from(featurePropValueCounts).sort((a, b) => {
-          // try to get a number
-          let an = parseNumber(a[0]);
-          let bn = parseNumber(b[0]);
-
-          // sort nulls and NaNs to the bottom
-          an = (an == null || isNaN(an)) ? -Infinity : an;
-          bn = (bn == null || isNaN(bn)) ? -Infinity : bn;
-
-          return bn - an; // descending sort
-        });
-      }
-      return featurePropValueCounts; // return original/unmodified values
+      return Array.from(featuresInViewport)
+        .sort((a,b)=>b.properties[featureProp] - a.properties[featureProp])
     },
 
     // function to calculate color for a feature prop value, based on current selection state
@@ -824,13 +839,8 @@ export default {
         // if color 'range' mode is active, check if values are sufficiently numeric, and if so,
         // automatically switch to 'rank' mode instead (no use using range controls for non-numeric data)
         let colors = current.displayToggles.colors;
-        if (!current.featurePropMostlyNumeric && colors === 'range') {
-          colors = 'rank';
-        }
-        // or the converse
-        else if (current.featurePropMostlyNumeric && colors === 'rank') {
-          colors = 'range';
-        }
+        colors="range"
+
 
         this.set({
           featurePropCheckNumeric: current.featureProp, // record that we last ran the check for this property name
@@ -1132,15 +1142,10 @@ export default {
     showFeaturePropPalette(colors) {
       return colorFunctions[colors] && colorFunctions[colors].usePalette;
     },
-
-    maybeStringifyObject(v) {
-      // stringify objects, otherwise just return original object
-      return (v != null && typeof v === 'object') ? JSON.stringify(v) : v;
-    },
-
     // references here make these available to as template helper
     useFeaturePropRangeLimit,
-    isPropNumeric
+    isPropNumeric,
+    getPropType
   }
 }
 

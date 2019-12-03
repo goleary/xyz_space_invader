@@ -1,33 +1,34 @@
 <div>
-  <div>histogram: {numQuantiles} buckets, {step.toFixed(1)} wide</div>
+  <h4>Legend {#if propName} for {propName} {/if}</h4>
   <table style="width: 100%">
     {#if outsideRange[0]}
       <tr>
-        <td>{outsideRange[0]}x</td>
-        <td></td>
-        <td style="width: 35%">&lt; {formatNumber(minFilter, step)}</td>
+        <td style="width: 65%">
+          <div style="width: 100%; height: 15px; background:{ `linear-gradient(90deg, ${minColor}, ${minColor})`}">&nbsp;</div>
+        </td>
+        <td style="width: 35%">&lt; {format(propType, minFilter, step)}</td>
       </tr>
     {/if}
 
     {#each quantiles as { from, to, fromColor, toColor, count, percent }}
       <tr>
-        <td>{count}x</td>
         <td style="width: 65%">
-          <div style="width: {percent}%; height: 15px;
+          <div style="width: 100%; height: 15px;
             background: {
               (fromColor && toColor) ? `linear-gradient(90deg, ${fromColor}, ${toColor})` : 'lightblue'
             }
           ">&nbsp;</div>
         </td>
-        <td style="width: 35%">{formatNumber(from, step)} ⇢ {formatNumber(to, step)}</td>
+        <td style="width: 35%">{format(propType, from, step)} ⇢ {format(propType, to, step)}</td>
       </tr>
     {/each}
 
     {#if outsideRange[1]}
       <tr>
-        <td>{outsideRange[1]}x</td>
-        <td></td>
-        <td style="width: 35%">&gt; {formatNumber(maxFilter+1, step)}</td>
+        <td>
+          <div style="width: 100%; height: 15px; background:{ `linear-gradient(90deg, ${maxColor}, ${maxColor})`}">&nbsp;</div>
+        </td>
+        <td style="width: 35%">&gt; {format(propType, maxFilter+1, step)}</td>
       </tr>
     {/if}
   </table>
@@ -35,21 +36,24 @@
 
 <script>
 
-import { parseNumber } from './utils';
+import { parseNumber, formatNumber, formatDollars, formatPercent } from './utils';
 
 export default {
   data() {
     return {
       numQuantiles: 10,
       minFilter: null,
-      maxFilter: null
+      maxFilter: null,
+      propType: 'number',
+      propName: null
     }
   },
 
   computed: {
     range: ({ minFilter, maxFilter }) => maxFilter+1 - minFilter,
     step: ({ numQuantiles, range }) => range / numQuantiles,
-
+    minColor:({minFilter, valueColorFunction})=>valueColorFunction(minFilter),
+    maxColor:({maxFilter, valueColorFunction})=>valueColorFunction(maxFilter),
     // track values above and below the filter range
     outsideRange: ({ minFilter, maxFilter, valueCounts }) => {
       let below = 0, above = 0;
@@ -93,7 +97,6 @@ export default {
         const from = (index*step + minFilter);
         const to = ((index+1)*step + minFilter);
         const percent = columns / numQuantiles * 100;
-
         const fromColor = valueColorFunction(from);
         const toColor = valueColorFunction(to);
 
@@ -108,16 +111,23 @@ export default {
       });
     }
   },
-
   helpers: {
-    formatNumber(value, step) {
-      if (Math.floor(value) === value) {
-        return value.toFixed(0); // show integers as integers
+    format (propType,value, step){
+      if(propType === "dollars")
+        return formatDollars(value);
+      if(propType === "percent")
+        return formatPercent(value);
+      else return formatNumber(value)
+      /*
+      else {
+        if (Math.floor(value) === value) {
+          return value.toFixed(0); // show integers as integers
+        }
+        // adapt the number of digits displayed to the data resolution
+        const digits = Math.max(0, Math.ceil(Math.log10(1/step)))
+        return value.toFixed(digits);
       }
-
-      // adapt the number of digits displayed to the data resolution
-      const digits = Math.max(0, Math.ceil(Math.log10(1/step)))
-      return value.toFixed(digits);
+      */
     }
   }
 };

@@ -17,11 +17,17 @@
 
 <div style="{featurePinned ? 'height: 200px; overflow: auto;' : ''}">
   <table>
+  {#if geoName!== null}
+    <tr>
+      <td>Location</td>
+      <td>{formatGeo(geoName)}</td>
+    </tr>
+  {/if}
 
   {#each summaryProps as [prop, value, propStack]}
     <tr class="propRow">
-      <td style="width: 50px;" class:active="prop === featureProp" on:click="fire('selectProp', { prop, propStack })">
-        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propStack[propStack.length-1]}</b>
+      <td style="width: 150px;" class:active="prop === featureProp" on:click="fire('selectProp', { prop, propStack })">
+        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]]||propStack[propStack.length-1]}</b>
       </td>
       <td style="word-break: break-all;" class:active="value === featurePropValue" on:click="fire('selectValue', { prop, propStack, value })">
         {typeof value !== 'object' ? value : ''}
@@ -29,26 +35,24 @@
     </tr>
   {/each}
 
-  {#if geoName!== null}
-    <tr>
-      <td>Location</td>
-      <td>{geoName}</td>
-    </tr>
-  {/if}
+
 
   {#if extendedProps.length && summaryProps.length}
     <tr><td colspan="2"><hr></td></tr>
   {/if}
 
   {#each extendedProps as [prop, value, propStack]}
+    {#if propMap[prop]}
+
     <tr class="propRow">
       <td style="width: 50px;" class:active="prop === featureProp" on:click="fire('selectProp', { prop, propStack })">
-        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propStack[propStack.length-1]}</b>
+        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]]||propStack[propStack.length-1]}</b>
       </td>
       <td style="word-break: break-all;" class:active="value === featurePropValue" on:click="fire('selectValue', { prop, propStack, value })">
         {typeof value !== 'object' ? value : ''}
       </td>
     </tr>
+    {/if}
   {/each}
 
   {#if !featurePinned && feature}
@@ -58,40 +62,33 @@
 
 <script>
 
-import { parseNestedObject, lookupProperty } from './utils';
+import { 
+  parseNestedObject,
+  lookupProperty,
+  formatProp,
+  formatGeo,
+  propMap } from './utils';
 
 export default {
   data() {
     return {
-      featurePinned: false
+      featurePinned: false,
+      propMap : {
+        ...propMap,
+        location: 'Location'
+      },
+      formatGeo
     }
   },
-
   computed: {
     summaryProps: ({ feature, featureProp, featurePropStack }) => {
       if (feature == null) {
         return [];
       }
-      function addCommas(nStr){
-        nStr += '';
-        var x = nStr.split('.');
-        var x1 = x[0];
-        var x2 = x.length > 1 ? '.' + x[1] : '';
-        var rgx = /(\d+)(\d{3})/;
-        while (rgx.test(x1)) {
-          x1 = x1.replace(rgx, '$1' + ',' + '$2');
-        }
-        return x1 + x2;
-      }
-      const formatDollar = (amount)=>`$${addCommas(amount.toFixed(2))}`;
 
       const addFeatureProp = (['id', 'name'].indexOf(featureProp) === -1);
       let propValue = lookupProperty(feature.properties, featurePropStack);
-      if(featureProp.indexOf('cost')!== -1 
-      || featureProp.indexOf('wage')!== -1
-      || featureProp.indexOf('earn')!== -1){
-        propValue = formatDollar(propValue);
-      }
+      propValue = formatProp(featureProp, propValue);
       const props = [
           ['id', feature.properties.id, ['id']],
           ['name', feature.properties.name, ['name']],
@@ -113,7 +110,7 @@ export default {
       }
 
       return parseNestedObject(feature.properties)
-        .map(r => [r.prop, r.obj, r.propStack])
+        .map(r => [r.prop, formatProp(r.prop,r.obj), r.propStack])
         .filter(([p]) => ['id', 'name'/*, featureProp*/].indexOf(p) === -1)
         .filter(x => x[0] && x[1]) // only include props that had values
         // alpha sort, @ properties at bottom

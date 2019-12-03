@@ -85,3 +85,83 @@ export function mostlyNumeric(values, threshold = 100) {
     .length;
   return numeric / values.length >= (threshold / 100);
 }
+
+export const formatGeo=(geo)=>{
+  if(!geo || geo.indexOf('ZCTA5') !== 0)
+    return geo;
+  return "Zipcode " +  geo.split(' ')[1];
+}
+
+export const formatDollars = n => "$" + formatNumber(n, 2);
+
+// from https://stackoverflow.com/a/55987576/5186877
+export const formatNumber = (n, d=0) => {
+  try{
+    if (n < 1e3) return n.toFixed(d);
+    if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(1) + "K";
+    if (n >= 1e6 && n < 1e9) return +(n / 1e6).toFixed(1) + "M";
+    if (n >= 1e9 && n < 1e12) return +(n / 1e9).toFixed(1) + "B";
+    if (n >= 1e12) return +(n / 1e12).toFixed(1) + "T";
+  }
+  catch(err){
+    return n;
+  }
+};
+
+export const formatPercent = n =>{
+  let value = n;
+  if(typeof value !== 'number')
+    value = Number.parseFloat(n);
+  if(value === NaN)
+    return n;
+  else return `${value.toFixed(1)}%`
+}
+
+export const isDollarProp = prop=> prop && (
+  prop.indexOf('cost')!== -1 
+  || prop.indexOf('wage')!== -1
+  || prop.indexOf('earn')!== -1);
+
+export const isPercentProp = prop=> prop && 
+  prop.indexOf('p_')=== 0; 
+
+export const getPropType = prop =>{
+  if (isDollarProp(prop)) return 'dollars';
+  else if (isPercentProp(prop)) return 'percent';
+  else return 'number';
+}
+
+export const propMap= {
+  mean_travel_time_m: "1-way commute length (minutes)",
+  med_earn: "Median Earnings",
+  commuters: "Commuters",
+  carpooled: "# Carpoolers",
+  public_transit: "# Public transit riders",
+  drove_alone: "# Lone Drivers",
+  walked: "# walkers",
+  wfh: "# Work From Home",
+  p_carpooled: "% Carpoolers",
+  p_drove_alone: "% Lone Drivers",
+  p_walked: "% Walkers",
+  p_public_transit: "% Public transit riders",
+  p_wfh: "% Work From Home",
+  avg_hour_wage: "Median Hourly Wage",
+  commute_cost_day_p: "Individual daily commute cost",
+  commute_cost_year_p: "Individual yearly commute cost",
+  commute_cost_day: "Total daily commute cost",
+  commute_cost_year: "Total yearly commute cost",
+};
+
+
+export const formatProp = (prop, value)=>{
+  if(isDollarProp(prop)){
+    return formatDollars(value);
+  }
+  else if(isPercentProp(prop)){
+    return formatPercent(value);
+  }
+  else if (typeof value === "number") {
+    return formatNumber(value);
+  }
+  else return value;
+}
