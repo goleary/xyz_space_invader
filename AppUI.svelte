@@ -153,11 +153,12 @@
                   <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMinFilterInput" placeholder="min" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
                   <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMaxFilterInput" placeholder="max" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
                 </div>
-
+                {#if !prod}
                 <label style="margin-bottom: 5px;">
                   <input type="checkbox" bind:checked="featurePropHideOutliers">
                   Hide values outside range
                 </label>
+                {/if}
                 {#if isPropNumeric(featurePropStack, { featurePropTypesCache, featuresInViewport, featurePropNumericThreshold })}
                 <!-- {#if featurePropMostlyNumeric} -->
                   <FeaturePropHistogram

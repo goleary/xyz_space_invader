@@ -216,9 +216,9 @@ function makeLayer(scene_obj) {
       updateScene(appUI.get(), config);
     },
     update: ()=>{
+      // when source changes trigger update of data sent to UI layer.
       console.log('update');
       queryViewport();
-      
     },
     view_complete: function (e) {
       // when new tiles finish loading, update viewport counts for tags and feature properties
@@ -256,6 +256,7 @@ function applySpace({ spaceId, token, hexbinInfo, displayToggles: { hexbins } = 
         clip: true
       }
     };
+    setDataSourceForZoomLevel();
   }
 }
 
@@ -463,7 +464,7 @@ async function getStats({ spaceId, token, mapStartLocation }) {
 let awaitingQuery = false;
 // query Tangram viewport tiles, and update UI data (tag and property counts, etc.)
 async function queryViewport() {
-  if(awaitingQuery)
+  if(awaitingQuery || !scene || !scene.config)
     return;
   awaitingQuery= true;
   const features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }, visible: true});
@@ -494,7 +495,8 @@ function updateViewportProperties(features) { // for feature prop
 }
 
 // additions by Gabe O
-map.on("zoomend", function() {
+
+const setDataSourceForZoomLevel=()=>{
   if (!scene || !scene.config) {
     return;
   }
@@ -530,5 +532,7 @@ map.on("zoomend", function() {
     //appUI.setFeatureProp({featurePropStack});
   }
   console.log("Current Zoom Level:" + zoomLevel);
-});
+}
+
+map.on("zoomend", setDataSourceForZoomLevel);
 
