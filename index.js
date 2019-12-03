@@ -7,7 +7,7 @@ import FileSaver from 'file-saver';
 import AppUI from './AppUI.svelte';
 import { displayOptions } from './displayOptions';
 import { calcFeaturePropertyStats } from './stats';
-import { stringifyWithFunctions } from './utils';
+import { stringifyWithFunctions, setLayerSource } from './utils';
 
 let query;
 let layer, scene;
@@ -506,31 +506,28 @@ const setDataSourceForZoomLevel=()=>{
     case 0:
     case 1:
     case 2:
-      zoomLevel = 3;
     case 3:
     case 4:
+      setLayerSource('_metro')
+      break;
     case 5:
-      source = '_metro';
-      break;
     case 6:
+      if(scene.config.layers._xyz_polygons.data.source === '_xyzspace')
+        setLayerSource('_county');
+      break;
     case 7:
-      //source = `_z${zoomLevel}_hexbin`;
-      source = '_county';
-      //featurePropStack = ["sum","sum"];
       break;
+    case 8:
+    case 9:
+      if(scene.config.layers._xyz_polygons.data.source === '_metro')
+        setLayerSource('_county')
+      break;
+    case 10:
     default:
-      source = "_xyzspace";
-      //featurePropStack = ["commute_cost_year"];
-      //reset selected field
+      setLayerSource('_xyzspace')
       break;
   }
-  if(scene.config.layers._xyz_polygons.data.source !== source){
-    console.log('updating layer source to: ', source);
-    scene.config.layers._xyz_polygons.data.source = source;
-    scene.config.layers._xyz_dots.data.source = source;
-    scene.updateConfig();
-    //appUI.setFeatureProp({featurePropStack});
-  }
+  appUI.set({zoomLevel});
   console.log("Current Zoom Level:" + zoomLevel);
 }
 

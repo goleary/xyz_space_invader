@@ -349,9 +349,43 @@
         </table>
       {/if}
     </div>
-   {:else}
+    {:else}
+      <div id="layers" class="panel">
+        <h3>Layers</h3>
+        <h4>Current Zoom Level: {zoomLevel}</h4>
+        <table>
+          <tr>
+            <th>Geography</th>
+            <th>Min zoom</th>
+            <th>Max zoom</th>
+          </tr>
+          <tr> 
+            <td class:active="sourceLayer ==='_metro'"
+              class:clickable="zoomLevel <=7"
+              on:click="setLayerSource('metro')">Metro/Micro Areas</td>
+            <td>0</td>
+            <td>7</td>
+          </tr>
+          <tr > 
+            <td class:active="sourceLayer ==='_county'"
+              class:clickable="zoomLevel >=5 && zoomLevel <=9"
+              on:click="setLayerSource('county')">
+              Counties</td>
+            <td>5</td>
+            <td>9</td>
+          </tr>
+          <tr > 
+            <td class:active="sourceLayer ==='_xyzspace'"
+              class:clickable="zoomLevel >=7 "
+              on:click="setLayerSource('zip')">
+              Zipcode</td>
+            <td>7</td>
+            <td>14</td>
+          </tr>
+        </table>
+      </div>
        <div id="properties" class="panel hideOnMobile">
-       <h4>Properties</h4>
+       <h3>Properties</h3>
       {#if sortedUniqueFeaturePropsSeen.length > 0}
         <table>
           {#each sortedUniqueFeaturePropsSeen as [prop, propStack]}
@@ -399,7 +433,18 @@ import { colorPalettes } from './colorPalettes';
 import { colorFunctions, colorHelpers } from './colorFunctions';
 import { displayOptions } from './displayOptions';
 import { calcFeaturePropertyStats } from './stats';
-import { parseNestedObject, formatPropStack, parseNumber, mostlyNumeric, lookupProperty, PROP_TYPES, getPropType, propMap, formatProp,formatGeo } from './utils';
+import { parseNestedObject,
+  formatPropStack,
+  parseNumber,
+  mostlyNumeric,
+  lookupProperty,
+  PROP_TYPES,
+  getPropType,
+  propMap,
+  formatProp,
+  formatGeo,
+  setLayerSource
+   } from './utils';
 
 export default {
   data() {
@@ -409,6 +454,8 @@ export default {
       propMap,
       formatProp,
       formatGeo,
+      sourceLayer: '_xyzspace',
+      zoomLevel: 0,
       // set these to empty strings (not null) to get placeholder text in input
       spaceId: '',
       token: '',
@@ -863,6 +910,7 @@ export default {
   },
 
   methods: {
+    setLayerSource,
     setFromQueryParams(params) {
       // convert query params to object
       params = [...params.entries()].reduce((p, [k, v]) => { p[k] = v; return p; }, {});
@@ -1234,6 +1282,27 @@ function hashString (string) {
 
   #properties table {
     width: 100%;
+  }
+
+
+  #layers td:first-of-type {
+    text-decoration:line-through;
+    pointer-events: none;
+  }
+
+  #layers td.active {
+    background-color: lightyellow;
+  }
+  #layers td.clickable {
+    text-decoration:none;
+    cursor: pointer;
+    pointer-events: initial;
+  }
+  #layers td.clickable:hover {
+    background-color: rgba(240, 240, 240, 0.75);
+  }
+  #layers td.disabled{
+    color: gray;
   }
 
   #properties tr:hover {

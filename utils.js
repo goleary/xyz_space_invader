@@ -165,3 +165,29 @@ export const formatProp = (prop, value)=>{
   }
   else return value;
 }
+
+export const setLayerSource = (geography)=> {
+  let source;
+  switch(geography){
+    case 'zip':
+      source = "_xyzspace"
+      break;
+    case 'counties':
+    case 'county':
+      source = '_county';
+      break;
+    case 'metro':
+      source = '_metro';
+      break;
+    default:
+      source = geography;
+      break;
+  }
+  if(scene.config.layers._xyz_polygons.data.source !== source){
+    console.log('updating layer source to: ', source);
+    scene.config.layers._xyz_polygons.data.source = source;
+    scene.config.layers._xyz_dots.data.source = source;
+    scene.updateConfig();
+    appUI.set({sourceLayer: source});
+  }
+}
