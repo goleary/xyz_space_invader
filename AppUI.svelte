@@ -2,7 +2,7 @@
 
 <!-- Demo/inspect mode toggle-->
 {#if demoMode}
-  <button on:click="set({ demoMode: false })" class="demoModeToggle">inspect</button>
+  <button on:click="set({ demoMode: false })" class="demoModeToggle">Show Controls</button>
 {:else}
   <!-- Render full UI -->
   <div id="controls_left" class="column">
@@ -227,12 +227,12 @@
 
           <table id="prop_stats">
             <tbody>
-              {#each sortedFeatures.slice(0, 10) as {properties}, i }
+              {#each sortedFeatures.slice(0, 10) as feature, i }
                 <tr>
                   <td style="width: 15px;">
                     <!-- uses color calc code shared with tangram-->
                     {#if colorModeUsesProperty(displayToggles.colors)}
-                      <span class="dot" style="background-color: {featurePropValueColorFunction(properties[featureProp])};">
+                      <span class="dot" style="background-color: {featurePropValueColorFunction(feature.properties[featureProp])};">
                       </span>
                     {/if}
                   </td>
@@ -240,13 +240,13 @@
                     class="value_row"
                     class:active="featurePropValue != null && value == featurePropValue"
                     >
-                    {formatProp(featureProp,properties[featureProp])}
+                    {formatProp(featureProp, feature.properties[featureProp])}
                   </td>
                   <td
                     class="value_row"
-                    on:click="set({featurePropValue: (value != featurePropValue ? value : null)})"
+                    on:click="set({featurePropValue: featurePropValue !== feature.properties[featureProp] ? feature.properties[featureProp] : null})"
                     >
-                    {formatGeo(properties.geography)}
+                    {formatGeo(feature.properties.geography)}
                   </td>
                 </tr>
               {/each}
@@ -263,7 +263,7 @@
 
   <!-- Demo/inspect mode toggle-->
   {#if !demoMode}
-    <button on:click="set({ demoMode: true })" class="demoModeToggle">demo</button>
+    <button on:click="set({ demoMode: true })" class="demoModeToggle">Hide Controls</button>
   {/if}
 
   <div id="controls_right" class="column hideOnMobile">

@@ -467,7 +467,7 @@ async function queryViewport() {
   if(awaitingQuery || !scene || !scene.config)
     return;
   awaitingQuery= true;
-  const features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }, visible: true});
+  const features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }});
   awaitingQuery=false;
   console.log("features in viewport:", features.length);
   appUI.set({ featuresInViewport: features });
