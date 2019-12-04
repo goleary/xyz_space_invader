@@ -1,34 +1,34 @@
-<div>
+<div >
   <h4>Legend {#if propName} for {propName} {/if}</h4>
   <table style="width: 100%">
     {#if outsideRange[0]}
       <tr>
-        <td style="width: 65%">
+        <td style="width: 40%">
           <div style="width: 100%; height: 15px; background:{ `linear-gradient(90deg, ${minColor}, ${minColor})`}">&nbsp;</div>
         </td>
-        <td style="width: 35%">&lt; {format(propType, minFilter, step)}</td>
+        <td style="width: 65%">&lt; {format(propType, minFilter, step)}</td>
       </tr>
     {/if}
 
     {#each quantiles as { from, to, fromColor, toColor, count, percent }}
       <tr>
-        <td style="width: 65%">
+        <td style="width: 40%">
           <div style="width: 100%; height: 15px;
             background: {
               (fromColor && toColor) ? `linear-gradient(90deg, ${fromColor}, ${toColor})` : 'lightblue'
             }
           ">&nbsp;</div>
         </td>
-        <td style="width: 35%">{format(propType, from, step)} ⇢ {format(propType, to, step)}</td>
+        <td style="width: 60%">{format(propType, from, step)} ⇢ {format(propType, to, step)}</td>
       </tr>
     {/each}
 
     {#if outsideRange[1]}
       <tr>
-        <td>
+        <td style="width: 40%">
           <div style="width: 100%; height: 15px; background:{ `linear-gradient(90deg, ${maxColor}, ${maxColor})`}">&nbsp;</div>
         </td>
-        <td style="width: 35%">&gt; {format(propType, maxFilter+1, step)}</td>
+        <td style="width: 60%">&gt; {format(propType, maxFilter+1, step)}</td>
       </tr>
     {/if}
   </table>

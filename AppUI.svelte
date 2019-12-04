@@ -72,7 +72,7 @@
       </div>
     </div>
     {/if}
-    <div id="colors" class="panel hideOnMobilePortrait">
+    <div id="colors" class="panel legend hideOnMobilePortrait">
       <div id="colorProperties">
         {#if !prod}
         <!-- Selected feature property and value info -->
@@ -140,19 +140,6 @@
             {/if}
             {#if featurePropMin != null}
               {#if useFeaturePropRangeLimit(displayToggles.colors)}
-                <div>
-                  Limit values:
-                  <select bind:value="featurePropRangeFilter" on:change="updateFeaturePropRangeFilter(this.value)">
-                    <option value="0">all</option>
-                    <option value="4">sigma 4</option>
-                    <option value="3">sigma 3</option>
-                    <option value="2">sigma 2</option>
-                    <option value="1">sigma 1</option>
-                    <option value="custom" class="hideOnMobile">custom</option>
-                  </select>
-                  <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMinFilterInput" placeholder="min" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
-                  <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMaxFilterInput" placeholder="max" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
-                </div>
                 {#if !prod}
                 <label style="margin-bottom: 5px;">
                   <input type="checkbox" bind:checked="featurePropHideOutliers">
@@ -169,6 +156,19 @@
                     propType={getPropType(featureProp)}
                     propName={propMap[featureProp]}
                   />
+                  <div>
+                  Limit values:
+                  <select bind:value="featurePropRangeFilter" on:change="updateFeaturePropRangeFilter(this.value)">
+                    <option value="0">all</option>
+                    <option value="4">sigma 4</option>
+                    <option value="3">sigma 3</option>
+                    <option value="2">sigma 2</option>
+                    <option value="1">sigma 1</option>
+                    <option value="custom" class="hideOnMobile">custom</option>
+                  </select>
+                  <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMinFilterInput" placeholder="min" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
+                  <input class="range_filter hideOnMobile" type="text" bind:value="featurePropMaxFilterInput" placeholder="max" on:input="updateFeaturePropRangeFilter('custom')" on:keydown="event.stopPropagation()">
+                </div>
                 {/if}
               {/if}
             {/if}
@@ -218,7 +218,7 @@
     </div>
       {#if featureProp && featurePropValueCounts}
 
-       <div class="panel" style="flex-grow:1">
+       <div class="panel">
          <!-- Top values list -->
         <div class="hideOnMobile">
           <div style="margin: 5px 0 5px 0;">
@@ -252,10 +252,6 @@
               {/each}
             </tbody>
           </table>
-
-          {#if sortedFeatures.length > 10}
-            <i>{sortedFeatures.length - 10} more {sortedFeatures.length - 10 > 1 ? 'values' : 'value'} for {featureProp} not shown</i>
-          {/if}
         </div>
    </div>
   {/if}
@@ -1247,7 +1243,9 @@ function hashString (string) {
 </script>
 
 <style>
-
+  .legend{
+    min-height: 280px
+  }
   .column {
     position: absolute;
     z-index: 1000;
@@ -1255,10 +1253,11 @@ function hashString (string) {
     max-height: 100vh;
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 250px;
   }
 
   .panel {
+    overflow:auto;
     margin: 5px;
     padding: 5px;
     background-color: rgba(200, 200, 200, 0.75);
@@ -1282,6 +1281,10 @@ function hashString (string) {
 
   #properties table {
     width: 100%;
+  }
+
+  #layers {
+    min-height: 200px;
   }
 
 
