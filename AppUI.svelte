@@ -154,7 +154,7 @@
                     valueCounts={featurePropValueCounts}
                     valueColorFunction={featurePropValueColorFunction}
                     propType={getPropType(featureProp)}
-                    propName={propMap[featureProp]}
+                    propName={propMap[featureProp].label}
                   />
                   <div>
                   Limit values:
@@ -222,7 +222,7 @@
          <!-- Top values list -->
         <div class="hideOnMobile">
           <div style="margin: 5px 0 5px 0;">
-            Top 10 locations by {propMap[featureProp]}
+            Top 10 locations by {propMap[featureProp].label}
           </div>
 
           <table id="prop_stats">
@@ -237,15 +237,14 @@
                     {/if}
                   </td>
                   <td
-                    class="value_row"
-                    class:active="featurePropValue != null && value == featurePropValue"
                     >
                     {formatProp(featureProp, feature.properties[featureProp])}
                   </td>
                   <td
                     class="value_row"
                     on:click="set({featurePropValue: featurePropValue !== feature.properties[featureProp] ? feature.properties[featureProp] : null})"
-                    >
+                    class:active="featurePropValue != null && feature.properties[featureProp] == featurePropValue"
+               >
                     {formatGeo(feature.properties.geography)}
                   </td>
                 </tr>
@@ -364,10 +363,10 @@
           </tr>
           <tr > 
             <td class:active="sourceLayer ==='_county'"
-              class:clickable="zoomLevel >=5 && zoomLevel <=9"
+              class:clickable="zoomLevel >=6 && zoomLevel <=9"
               on:click="setLayerSource('county')">
               Counties</td>
-            <td>5</td>
+            <td>6</td>
             <td>9</td>
           </tr>
           <tr > 
@@ -382,14 +381,13 @@
       </div>
        <div id="properties" class="panel hideOnMobile">
        <h3>Properties</h3>
-      {#if sortedUniqueFeaturePropsSeen.length > 0}
+      {#if sortedPropertiesToDisplay.length > 0}
         <table>
-          {#each sortedUniqueFeaturePropsSeen as [prop, propStack]}
+          {#each sortedPropertiesToDisplay as {prop, label, bold}}
           {#if propMap[prop]}
-            <tr class:active="prop === featureProp" on:click="setFeatureProp({ featurePropStack: (prop !== featureProp ? propStack : null) })">
-              <td>
-                {@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}
-                {propMap[prop] || prop}
+            <tr class:active="prop === featureProp" on:click="setFeatureProp({ featurePropStack: [prop] })">
+              <td class:bold="bold">
+                {label || prop}
               </td>
             </tr>
             {/if}
@@ -651,9 +649,26 @@ export default {
 
     sortedUniqueFeaturePropsSeen: ({ uniqueFeaturePropsSeen }) => {
       // alphabetical sort, but with @ properties at bottom
-      return Array.from(uniqueFeaturePropsSeen.keys())
+      let sorted =  Array.from(uniqueFeaturePropsSeen.keys())
         .sort((a, b) => a[0] === '@' ? 1 : b[0] === '@' ? -1 : a[0] > b[0] ? 1 : a[0] < b[0] ? -1 : 0)
-        .map(prop => [prop, uniqueFeaturePropsSeen.get(prop)]);
+      return sorted;
+    },
+
+    sortedPropertiesToDisplay : ({uniqueFeaturePropsSeen})=> {
+      const labelCompare = (a,b)=> propMap[a].label < propMap[b].label ? -1: 1;
+      const properties = Array.from(uniqueFeaturePropsSeen.keys())
+        .filter(prop=>propMap[prop]);
+      const bold = properties.filter(prop=>propMap[prop].bold)
+        .sort(labelCompare);
+      const notBold = properties.filter(prop=>!propMap[prop].bold)
+        .sort(labelCompare);
+      return [
+        ...bold,
+        ...notBold
+      ].map(prop=>({
+        prop,
+        ...propMap[prop]
+      }));
     },
 
     numFeatureTagsInViewport: ({ tagsWithCountsInViewport }) => tagsWithCountsInViewport.reduce((acc, cur) => acc + cur[1], 0),
@@ -1406,6 +1421,9 @@ function hashString (string) {
     #basemap_select {
       width: 110px;
     }
+  }
+  .bold { 
+    font-weight: bold;
   }
 
 </style>

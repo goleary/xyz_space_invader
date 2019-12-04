@@ -3,16 +3,6 @@
 .propRow > td {
   padding: 2px;
 }
-
-.propRow > td:hover {
-  background-color: rgba(240, 240, 240, 0.75);
-  cursor: pointer;
-}
-
-.propRow > td.active {
-  background-color: lightyellow;
-}
-
 </style>
 
 <div style="{featurePinned ? 'height: 200px; overflow: auto;' : ''}">
@@ -26,10 +16,10 @@
 
   {#each summaryProps as [prop, value, propStack]}
     <tr class="propRow">
-      <td style="width: 150px;" class:active="prop === featureProp" on:click="fire('selectProp', { prop, propStack })">
-        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]]||propStack[propStack.length-1]}</b>
+      <td style="width: 150px;" >
+        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]].label||propStack[propStack.length-1]}</b>
       </td>
-      <td style="word-break: break-all;" class:active="value === featurePropValue" on:click="fire('selectValue', { prop, propStack, value })">
+      <td style="word-break: break-all;" >
         {typeof value !== 'object' ? value : ''}
       </td>
     </tr>
@@ -45,10 +35,10 @@
     {#if propMap[prop]}
 
     <tr class="propRow">
-      <td style="width: 50px;" class:active="prop === featureProp" on:click="fire('selectProp', { prop, propStack })">
-        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]]||propStack[propStack.length-1]}</b>
+      <td style="width: 50px;" >
+        <b>{@html Array((propStack.length - 1) * 2).fill('&nbsp;').join('')}{propMap[propStack[propStack.length-1]].label||propStack[propStack.length-1]}</b>
       </td>
-      <td style="word-break: break-all;" class:active="value === featurePropValue" on:click="fire('selectValue', { prop, propStack, value })">
+      <td style="word-break: break-all;" >
         {typeof value !== 'object' ? value : ''}
       </td>
     </tr>

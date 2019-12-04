@@ -132,24 +132,62 @@ export const getPropType = prop =>{
 }
 
 export const propMap= {
-  mean_travel_time_m: "1-way commute length (minutes)",
-  med_earn: "Median Earnings",
-  commuters: "Commuters",
-  carpooled: "# Carpoolers",
-  public_transit: "# Public transit riders",
-  drove_alone: "# Lone Drivers",
-  walked: "# walkers",
-  wfh: "# Work From Home",
-  p_carpooled: "% Carpoolers",
-  p_drove_alone: "% Lone Drivers",
-  p_walked: "% Walkers",
-  p_public_transit: "% Public transit riders",
-  p_wfh: "% Work From Home",
-  avg_hour_wage: "Median Hourly Wage",
-  commute_cost_day_p: "Individual daily commute cost",
-  commute_cost_year_p: "Individual yearly commute cost",
-  commute_cost_day: "Total daily commute cost",
-  commute_cost_year: "Total yearly commute cost",
+  mean_travel_time_m: {
+    label: "1-way commute length (minutes)"
+  },
+  med_earn: {
+    label: "Median yearly earnings"
+  },
+  commuters: {
+    label: " # Commuters"
+  },
+  carpooled: {
+    label: "# Carpoolers"
+  },
+  public_transit: {
+    label: "# Public transit riders"
+  },
+  drove_alone: {
+    label: "# Lone drivers"
+  },
+  walked: {
+    label: "# Walkers"
+  },
+  wfh: {
+    label: "# Work from home"
+  },
+  p_carpooled: {
+    label: "% Carpoolers"
+  },
+  p_drove_alone: {
+    label: "% Lone drivers"
+  },
+  p_walked: {
+    label: "% Walkers"
+  },
+  p_public_transit: {
+    label: "% Public transit riders"
+  },
+  p_wfh: {
+    label: "% Work from home"
+  },
+  avg_hour_wage: {
+    label: "Median hourly wage"
+  },
+  commute_cost_day_p: {
+    label: "Individual daily commute cost"
+  },
+  commute_cost_year_p: {
+    label: "Individual yearly commute cost",
+    bold: true
+  },
+  commute_cost_day: {
+    label: "Total daily commute cost"
+  },
+  commute_cost_year: {
+    label: "Total yearly commute cost",
+    bold: true
+  },
 };
 
 
@@ -188,6 +226,6 @@ export const setLayerSource = (geography)=> {
     scene.config.layers._xyz_polygons.data.source = source;
     scene.config.layers._xyz_dots.data.source = source;
     scene.updateConfig();
-    appUI.set({sourceLayer: source});
+    appUI.set({sourceLayer: source, featurePropValue:null});
   }
 }

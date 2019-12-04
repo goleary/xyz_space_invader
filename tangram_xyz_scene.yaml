@@ -119,7 +119,7 @@ sources:
     _county:
         url: "https://xyz.api.here.com/hub/spaces/VSJhRZQi/tile/web/{z}_{x}_{y}"
         type: GeoJSON
-        min_zoom: 4
+        min_zoom: 6
         max_zoom: 9
         url_params:
             access_token: global.access_token
