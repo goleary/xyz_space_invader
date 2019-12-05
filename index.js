@@ -4,6 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import yaml from 'js-yaml';
 import FileSaver from 'file-saver';
 
+import uniqBy from 'lodash/uniqBy';
+
 import AppUI from './AppUI.svelte';
 import { displayOptions } from './displayOptions';
 import { calcFeaturePropertyStats } from './stats';
@@ -250,7 +252,7 @@ function applySpace({ spaceId, token, hexbinInfo, displayToggles: { hexbins } = 
     scene_config.sources._xyzspace = {
       type: 'GeoJSON',
       url: `https://xyz.api.here.com/hub/spaces/${activeSpaceId}/tile/web/{z}_{x}_{y}`,
-      min_display_zoom: 7,
+      min_display_zoom: 8,
       url_params: {
         access_token: token,
         clip: true
@@ -467,8 +469,9 @@ async function queryViewport() {
   if(awaitingQuery || !scene || !scene.config)
     return;
   awaitingQuery= true;
-  const features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }});
-  awaitingQuery=false;
+  let features = await scene.queryFeatures({filter: { $source: scene.config.layers._xyz_polygons.data.source }, geometry:true});
+  awaitingQuery = false;
+  features = uniqBy(features, f=>f.id);
   console.log("features in viewport:", features.length);
   appUI.set({ featuresInViewport: features });
   updateViewportProperties(features);
@@ -512,10 +515,9 @@ const setDataSourceForZoomLevel=()=>{
       setLayerSource('_metro')
       break;
     case 6:
+    case 7:
       if(scene.config.layers._xyz_polygons.data.source === '_xyzspace')
         setLayerSource('_county');
-      break;
-    case 7:
       break;
     case 8:
     case 9:

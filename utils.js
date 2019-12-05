@@ -1,3 +1,5 @@
+import centroid from '@turf/centroid';
+
 export const PROP_TYPES = {
   STRING: 0,
   NUMERIC: 1
@@ -228,4 +230,9 @@ export const setLayerSource = (geography)=> {
     scene.updateConfig();
     appUI.set({sourceLayer: source, featurePropValue:null});
   }
+}
+
+export const moveMapToPolygon = (polygon) => {
+  const point = centroid(polygon);
+  scene.view.setView({lat:point.geometry.coordinates[1],lng:point.geometry.coordinates[0]})
 }

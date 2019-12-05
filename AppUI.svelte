@@ -221,6 +221,15 @@
        <div class="panel">
          <!-- Top values list -->
         <div class="hideOnMobile">
+
+          {#if featurePropValue != null}
+            <div>
+              <span class="active">
+                Only showing selected location
+                <button on:click="set({ featurePropValue: null })" style="background: none; border: none; cursor: pointer;">❌</button>
+              </span>
+            </div>
+          {/if}
           <div style="margin: 5px 0 5px 0;">
             Top 10 locations by {propMap[featureProp].label}
           </div>
@@ -242,7 +251,7 @@
                   </td>
                   <td
                     class="value_row"
-                    on:click="set({featurePropValue: featurePropValue !== feature.properties[featureProp] ? feature.properties[featureProp] : null})"
+                    on:click="selectFeature(feature)"
                     class:active="featurePropValue != null && feature.properties[featureProp] == featurePropValue"
                >
                     {formatGeo(feature.properties.geography)}
@@ -371,10 +380,10 @@
           </tr>
           <tr > 
             <td class:active="sourceLayer ==='_xyzspace'"
-              class:clickable="zoomLevel >=7 "
+              class:clickable="zoomLevel >=8 "
               on:click="setLayerSource('zip')">
               Zipcode</td>
-            <td>7</td>
+            <td>8</td>
             <td>14</td>
           </tr>
         </table>
@@ -437,7 +446,8 @@ import { parseNestedObject,
   propMap,
   formatProp,
   formatGeo,
-  setLayerSource
+  setLayerSource,
+  moveMapToPolygon
    } from './utils';
 
 export default {
@@ -921,6 +931,12 @@ export default {
   },
 
   methods: {
+    selectFeature(feature){
+      if(this._state.featurePropValue !== feature.properties[this._state.featureProp])
+        moveMapToPolygon(feature);
+      this.set({featurePropValue: this._state.featurePropValue !== feature.properties[this._state.featureProp] ?
+       feature.properties[this._state.featureProp] : null});
+    },
     setLayerSource,
     setFromQueryParams(params) {
       // convert query params to object
