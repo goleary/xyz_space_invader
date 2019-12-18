@@ -143,8 +143,9 @@ function makeLayer(scene_obj) {
   layer = Tangram.leafletLayer({
     scene: scene_obj,
     leaflet: L,
-    attribution: '<a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a> | &copy; OSM contributors | <a href="https://explore.xyz.here.com/">HERE XYZ</a>',
-    events: {
+    attribution:
+    '<a href="https://github.com/burritojustice/xyz_space_invader" target="_blank">HERE XYZ Space Invader</a> | <a href="https://github.com/tangrams/tangram" target="_blank">Tangram</a> | <a href="https://explore.xyz.here.com/">HERE XYZ</a>',
+      events: {
       hover: ({ feature, leaflet_event: { latlng }, changed }) => {
         // preview feature via hover, currently NOT synced to app UI
         if (appUI.get().featurePinned) {

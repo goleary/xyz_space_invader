@@ -1308,6 +1308,7 @@ function hashString (string) {
     overflow: auto;
     height: 150vh;
     flex: 1 1 auto;
+    margin-bottom: 20px;
   }
 
   #properties table {
