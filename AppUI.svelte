@@ -291,28 +291,28 @@
           <i>no tags filtered<br><br></i>
         {/if}
       </div>
-      <div style="color:blue;" id="clear_filters" on:click="set({ tagFilterList: [] })">CLEAR TAG FILTERS</div>
+      <div style="color:#2dd5c9;" id="clear_filters" on:click="set({ tagFilterList: [] })">CLEAR TAG FILTERS</div>
       <div id="and_or">
         <input type="radio" g="and_or" value="or" bind:group='tagFilterAndOr'>or
         <input type="radio" name="and_or" value="and" bind:group='tagFilterAndOr'>and<br>
       </div>
     </div>
     <div id="tag_panel" class="panel">
-      <span style="color:blue;" on:click="toggleTagFilterViewport()">
+      <span style="color:#2dd5c9;" on:click="toggleTagFilterViewport()">
         {#if tagFilterViewport}
           [show all tags seen]
         {:else}
           [only show tags in view]
         {/if}
       </span>
-      <span style="color:blue;" on:click="toggleTagFilterAt()">
+      <span style="color:#2dd5c9;" on:click="toggleTagFilterAt()">
         {#if tagFilterAt}
           [show all tag names]
         {:else}
           [only show @ tags]
         {/if}
       </span>
-      <span style="color:blue;" on:click="toggleTagSort()">
+      <span style="color:#2dd5c9;" on:click="toggleTagSort()">
         [sort by {nextTagSort}]
       </span>
       <div id="tags">
@@ -1291,10 +1291,11 @@ function hashString (string) {
     overflow:auto;
     margin: 5px;
     padding: 5px;
-    background-color: rgba(200, 200, 200, 0.75);
+    /*background-color: rgba(200, 200, 200, 0.75);*/
+    background-color: rgba(39,45,55,0.9);
     border: 1px solid black;
     border-radius: 3px;
-    color: black;
+    color: rgb(240,240,240);
     box-shadow: 2px 2px 2px black;
   }
 
@@ -1341,11 +1342,11 @@ function hashString (string) {
   }
 
   #properties tr:hover {
-    background-color: rgba(240, 240, 240, 0.75);
+    background-color: rgba(80, 80, 80, 0.75);
   }
 
   #properties tr.active {
-    background-color: lightyellow;
+    background-color: grey;
   }
 
   #colors {
@@ -1388,6 +1389,7 @@ function hashString (string) {
   }
 
   .active {
+    color:black;
     background-color: lightyellow; padding: 3px;
   }
 
